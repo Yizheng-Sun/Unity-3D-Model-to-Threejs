@@ -10,3 +10,8 @@ Use FBX Exporter to export .fbx file
 Render .fbx model (mesh without texture) in Browser using Threejs
 ![Screenshot 2022-07-21 at 01 03 57](https://user-images.githubusercontent.com/105564219/180227438-f9922a8a-dcf5-4789-994d-b467dac00f92.png)
 ![Screenshot 2022-07-21 at 01 02 17](https://user-images.githubusercontent.com/105564219/180227462-4b62ed23-f4e4-4ff6-8664-eb1082a1e186.png)
+
+Unity 3D models are from project CapsuleEndoscope
+/
+VirtualCapsuleEndoscopy
+https://github.com/CapsuleEndoscope/VirtualCapsuleEndoscopy
