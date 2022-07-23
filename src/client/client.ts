@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import Stats from 'three/examples/jsm/libs/stats.module'
+import {TGALoader} from "three/examples/jsm/loaders/TGALoader";
 
 const scene = new THREE.Scene()
 scene.add(new THREE.AxesHelper(500))
@@ -28,18 +29,46 @@ const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 controls.target.set(0, 1, 0)
 
-//const material = new THREE.MeshNormalMaterial()
-const material = new THREE.MeshBasicMaterial({
-    color: 0x00ff00,
-    wireframe: true,
-})
+
+const loader = new TGALoader();
+
+// load a resource
+const texture = loader.load(
+    // resource URL
+    'material/colon.tga',
+    // called when loading is completed
+    function ( texture ) {
+        console.log( 'Texture is loaded' );
+    },
+    // called when the loading is in progresses
+    function ( xhr ) {
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+    },
+    // called when the loading fails
+    function ( error ) {
+
+        console.log( 'An error happened' );
+
+    }
+);
+
+const material = new THREE.MeshPhongMaterial( {
+    color: 0xffffff,
+    map: texture
+} );
+
+// const material = new THREE.MeshBasicMaterial({
+//     color: 0x00ff00,
+//     wireframe: true,
+// })
+
 const fbxLoader = new FBXLoader()
 fbxLoader.load(
-    'models/organ.fbx',
+    'models/BallMagnet.fbx',
     (object) => {
         object.traverse(function (child) {
             if ((child as THREE.Mesh).isMesh) {
-            
+
                 (child as THREE.Mesh).material = material
                 // if ((child as THREE.Mesh).material) {
                 //     ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).transparent = false
