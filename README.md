@@ -7,7 +7,7 @@ Export .fbx form 3D models from Unity and Render them in browser using Threejs
 Use FBX Exporter to export .fbx file. 
 FBX Exporter can be found at:
 https://docs.unity3d.com/Packages/com.unity.formats.fbx@2.0/manual/index.html
-<br> .fbx 3D models are in dist/client/models
+<br> .fbx 3D models are in put dist/client/models
 <img width="1771" alt="Screenshot 2022-07-21 at 14 33 38" src="https://user-images.githubusercontent.com/105564219/180226721-26533821-8ac2-415f-95bb-bc8a91f6121d.png">
 
 Render .fbx model (mesh without texture) in Browser using Threejs. Implementation is in src/client/client.ts
