@@ -1,115 +1,123 @@
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import Stats from 'three/examples/jsm/libs/stats.module'
-import {TGALoader} from "three/examples/jsm/loaders/TGALoader";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import Stats from "three/examples/jsm/libs/stats.module";
+import { TGALoader } from "three/examples/jsm/loaders/TGALoader";
+import { VRButton } from "three/examples/jsm/webxr/VRButton";
+import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry";
 
-const scene = new THREE.Scene()
-scene.add(new THREE.AxesHelper(500))
+const container = document.createElement("div");
+document.body.appendChild(container);
 
-const light = new THREE.PointLight()
-light.position.set(80, 140, 100)
-scene.add(light)
-
-const ambientLight = new THREE.AmbientLight()
-scene.add(ambientLight)
+const clock = new THREE.Clock();
 
 const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-)
-camera.position.set(100, 140, 100)
-const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
-
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-controls.target.set(0, 1, 0)
-
-
-const loader = new TGALoader();
-
-// load a resource
-const texture = loader.load(
-    // resource URL
-    'material/colon.tga',
-    // called when loading is completed
-    function ( texture ) {
-        console.log( 'Texture is loaded' );
-    },
-    // called when the loading is in progresses
-    function ( xhr ) {
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-    },
-    // called when the loading fails
-    function ( error ) {
-
-        console.log( 'An error happened' );
-
-    }
+  50,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  10000
 );
+camera.position.set(0, 6, 4);
 
-const material = new THREE.MeshPhongMaterial( {
-    color: 0xffffff,
-    map: texture
-} );
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x505050);
 
-// const material = new THREE.MeshBasicMaterial({
-//     color: 0x00ff00,
-//     wireframe: true,
-// })
+scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
-const fbxLoader = new FBXLoader()
-fbxLoader.load(
-    'models/BallMagnet.fbx',
-    (object) => {
-        object.traverse(function (child) {
-            if ((child as THREE.Mesh).isMesh) {
+const light = new THREE.DirectionalLight(0xffffff);
+light.position.set(1, 1, 1).normalize();
+scene.add(light);
 
-                (child as THREE.Mesh).material = material
-                // if ((child as THREE.Mesh).material) {
-                //     ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).transparent = false
-                // }
-            }
-        })
-        // const material = new THREE.MeshBasicMaterial() //{ color: 0x00ff00, wireframe: true })
-        // const cube = new THREE.Mesh(object, material)
-        scene.add(object)
-    },
-    (xhr) => {
-        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-    },
-    (error) => {
-        console.log(error)
-    }
-)
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
 
-window.addEventListener('resize', onWindowResize, false)
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    render()
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.6, 0);
+controls.update();
+
+const stats = Stats();
+container.appendChild(stats.dom);
+
+initScene();
+setupVR();
+
+window.addEventListener("resize", resize.bind(this));
+
+renderer.setAnimationLoop(render.bind(this));
+
+function random(min: number, max: number) {
+  return Math.random() * (max - min) + min;
 }
 
-const stats = Stats()
-document.body.appendChild(stats.dom)
+function initScene() {
+  const room = new THREE.LineSegments(
+    new BoxLineGeometry(6, 6, 6, 10, 10, 10),
+    new THREE.LineBasicMaterial({ color: 0x808080 })
+  );
+  room.geometry.translate(0, 3, 0);
+  scene.add(room);
 
-function animate() {
-    requestAnimationFrame(animate)
+  const loader = new TGALoader();
+  const texture = loader.load(
+    "material/colon.tga",
+    function (texture) {
+      console.log("Texture is loaded");
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    function (error) {
+      console.log("An error happened");
+    }
+  );
+  const material = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    map: texture,
+  });
+  // load .fbx model
+  const fbxLoader = new FBXLoader();
+  fbxLoader.load(
+    "models/BallMagnet.fbx",
+    (object) => {
+      object.traverse(function (child) {
+        if ((child as THREE.Mesh).isMesh) {
+          (child as THREE.Mesh).material = material;
+          // if ((child as THREE.Mesh).material) {
+          //     ((child as THREE.Mesh).material as THREE.MeshBasicMaterial).transparent = false
+          // }
+          child.scale.set(0.01, 0.01, 0.01);
+          child.position.y = 1;
+          child.position.z = -2;
+          room.add(child);
+        }
+      });
+    },
+    (xhr) => {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    (error) => {
+      console.log(error);
+    }
+  );
+}
 
-    controls.update()
+function setupVR() {
+  renderer.xr.enabled = true;
+  document.body.appendChild(VRButton.createButton(renderer));
+}
 
-    render()
-
-    stats.update()
+function resize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function render() {
-    renderer.render(scene, camera)
-}
+  stats.update();
 
-animate()
+  renderer.render(scene, camera);
+}
