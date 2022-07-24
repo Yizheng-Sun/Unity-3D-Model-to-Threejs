@@ -23,3 +23,10 @@ https://github.com/CapsuleEndoscope/VirtualCapsuleEndoscopy
 ### Update 24-07-2022:
 Add VR model. User can switch to view VR scene.
 ![Screenshot 2022-07-24 at 22 17 34](https://user-images.githubusercontent.com/105564219/180666380-86f742df-2f9b-4105-8936-981c55ce2af3.png)
+
+### How to run the project:
+Clone the repository,
+run 
+```
+npm run dev
+```
